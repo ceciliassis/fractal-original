@@ -29,19 +29,36 @@ Fractal currently takes as input graphs with the following format:
 Vertex ids are expected to be sequential integers between 0 and (total number of vertices - 1).
 
 ## Installing Fractal
+**NOTE**: Instructions for LINUX.
 
-1. Download and configure Spark 2.x.x:
-
+1. Install JAVA 8:
 ```
-export JAVA_HOME=<openjdk-8-installation-folder>
-cd <repositories-folder>
-wget https://archive.apache.org/dist/spark/spark-2.2.0/spark-2.2.0-bin-hadoop2.7.tgz
-mv spark-2.2.0-bin-hadoop2.7.tgz spark
-cd spark
-export SPARK_HOME=`pwd` 
+sudo apt install openjdk-8
 ```
 
-2. Clone and build Fractal:
+2. Install Scala:
+``` 
+sudo apt install scala
+```
+
+3. Download and configure Spark 2.x.x: 
+``` 
+wget https://www-eu.apache.org/dist/spark/spark-2.4.4/spark-2.4.4-bin-hadoop2.7.tgz
+tar -xvzg spark-2.4.4-bin-hadoop2.7
+mv Downloads/spark-2.4.4-bin-hadoop2.7 /usr/local 
+sudo ln -s /usr/local/spark-2.4.4-bin-hadoop2.7 /usr/local/spark
+
+# Add to .zshrc
+nano .zshrc
+export SPARK_HOME=/usr/local/spark
+path+=("$SPARK_HOME/bin")
+export PATH
+
+# Out of zsh
+source .zshrc
+```
+
+5. Clone and build Fractal:
 ```
 cd <repositories-folder>
 git clone https://github.com/dccspeed/fractal.git
