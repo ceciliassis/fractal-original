@@ -890,7 +890,7 @@ public class BasicMainGraph<V,E> implements MainGraph<V,E> {
    protected Vertex createVertex(int id, int originalId, int label) {
       Vertex vertex = new Vertex(id, originalId, label);
       if (vertexProperties != null) {
-         vertex.setProperty(vertexProperties[label]);
+         vertex.setProperty(vertexProperties[id]);
       }
       return vertex;
    }
