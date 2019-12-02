@@ -150,8 +150,8 @@ object ExceptionalMiningApp extends Logging {
 
     }
 
-    //  -------------------------------------------
-
+    //  RUN
+//    TODO: read graps folder
     graphPath = "data/exceptionalMining-v1/candidates_1_25_61_62_272.graph"
 
     val fileLines: Int = getFileLines(graphPath)
@@ -171,7 +171,7 @@ object ExceptionalMiningApp extends Logging {
       subgraphs += run(k).filter(wracc).subgraphs
     }
 
-    // environment cleaning
+    // ENV CLEANING
     fc.stop()
     sc.stop()
   }
