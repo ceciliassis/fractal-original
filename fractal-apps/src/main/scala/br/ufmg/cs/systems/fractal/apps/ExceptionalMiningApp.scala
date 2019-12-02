@@ -160,6 +160,9 @@ object ExceptionalMiningApp extends Logging {
 
     //  RUN
     //    TODO: read graps folder
+
+    val startTime = System.currentTimeMillis
+
     val dirPath = "data/exceptionalMining-v1/candidates"
     val files = getFiles(dirPath)
 
@@ -186,6 +189,10 @@ object ExceptionalMiningApp extends Logging {
           subgraphs += expanded(k, fGraph).filter(wracc).subgraphs
         }
     }
+
+    val stopTime = System.currentTimeMillis
+    val elapsedTime = stopTime - startTime
+    println(s"Elapsed time(s): ${elapsedTime/1000.0}")
 
     // ENV CLEANING
     fc.stop()
