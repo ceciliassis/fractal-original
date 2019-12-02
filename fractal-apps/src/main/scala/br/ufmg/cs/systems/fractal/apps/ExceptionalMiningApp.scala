@@ -190,6 +190,9 @@ object ExceptionalMiningApp extends Logging {
         }
     }
 
+
+    subgraphs = subgraphs.filter(rdd => !rdd.isEmpty())
+
     val stopTime = System.currentTimeMillis
     val elapsedTime = stopTime - startTime
     println(s"Elapsed time(s): ${elapsedTime/1000.0}")
