@@ -3,17 +3,17 @@ package br.ufmg.cs.systems.fractal.apps
 import br.ufmg.cs.systems.fractal._
 import br.ufmg.cs.systems.fractal.computation.Computation
 import br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining
-import br.ufmg.cs.systems.fractal.graph.Vertex
-import br.ufmg.cs.systems.fractal.subgraph.VertexInducedSubgraph
+import br.ufmg.cs.systems.fractal.subgraph.{ResultSubgraph, VertexInducedSubgraph}
 import br.ufmg.cs.systems.fractal.util.Logging
 import br.ufmg.cs.systems.fractal.util.collection.IntArrayList
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
+import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 
 object ExceptionalMiningApp extends Logging {
-
   def getFileLines(path: String): Int = {
     Source.fromFile(path).getLines().toList.length
   }
@@ -48,8 +48,8 @@ object ExceptionalMiningApp extends Logging {
 
     val vIds: IntArrayList = {
       val ids = new IntArrayList()
-      for (i <- 0 to graph.getNumberVertices - 1) {
-        ids.add(graph.getVertex(i).getVertexId)
+      for (i <- 0 to gVertsLen - 1) {
+        ids.add(gVerts(i).getVertexId)
       }
       ids
     }
@@ -88,7 +88,7 @@ object ExceptionalMiningApp extends Logging {
       }
     }
 
-    val props: VertexInducedSubgraph => List[IntArrayList] = (vis) => {
+    val props: VertexInducedSubgraph => List[IntArrayList] = vis => {
       val props: IntArrayList = vis.vertex(0).getProperty.asInstanceOf[IntArrayList]
 
       val posAttsLen: Int = props.get(0)
@@ -124,25 +124,30 @@ object ExceptionalMiningApp extends Logging {
       gain(kIds, posAtts, kAttsTot) - gain(kIds, negAtts, kAttsTot)
     }
 
-    val wracc: VertexInducedSubgraph => Double = vis => {
-      val atts = props(vis)
-      val posAtts = atts(0)
-      val negAtts = atts(1)
+    val wracc = (vis: VertexInducedSubgraph, cvis: Computation[VertexInducedSubgraph]) => {
+      if (vis.getNumVertices > SIGMA) {
+        val atts = props(vis)
+        val posAtts = atts(0)
+        val negAtts = atts(1)
 
-      var i = 0
-      val kIds = new IntArrayList
-      var v = vis.vertex(0)
-      kIds.add(v.getVertexLabel)
-
-      while (valid(kIds, v.getProperty, posAtts, negAtts) && i < vis.getNumVertices) {
-        kIds.clear()
-        i += 1
-
+        var i = 0
+        val kIds = new IntArrayList
+        var v = vis.vertex(0)
         kIds.add(v.getVertexLabel)
-        v = vis.vertex(i)
+
+        while (valid(kIds, v.getProperty, posAtts, negAtts) && i < vis.getNumVertices) {
+          kIds.clear()
+          i += 1
+
+          kIds.add(v.getVertexLabel)
+          v = vis.vertex(i)
+        }
+
+        aMeasure(vis, posAtts, negAtts) * (vis.getNumVertices / gVertsLen) > DELTA
+      } else {
+        false
       }
 
-      aMeasure(vis, posAtts, negAtts) * (vis.getNumVertices / gVertsLen)
     }
 
     //  -------------------------------------------
@@ -151,17 +156,20 @@ object ExceptionalMiningApp extends Logging {
 
     val fileLines: Int = getFileLines(graphPath)
     val fgraph = fc.textFile(graphPath)
-    var frac: Fractoid[VertexInducedSubgraph] = fgraph.vfractoid.set("input_graph_class", exceptionalGraphClass)
+    var subgraphs = new ListBuffer[RDD[ResultSubgraph[_]]]
 
-    //    for (k <- 1 to fileLines) {
-    frac = fgraph.vfractoid.set("input_graph_class", exceptionalGraphClass)
-    //      for (_ <- 1 to k) {
-    frac = frac.expand(1)
-    //      }
-    frac = frac.filter((vis, _) => wracc(vis) > DELTA)
-    //    }
 
-    val subgraphs = frac.subgraphs
+    val run: Int => Fractoid[VertexInducedSubgraph] = (k) => {
+      var frac = fgraph.vfractoid.set("input_graph_class", exceptionalGraphClass)
+      for (_ <- 1 to k) {
+        frac = frac.expand(1)
+      }
+      frac
+    }
+
+    for (k <- 1 to fileLines) {
+      subgraphs += run(k).filter(wracc).subgraphs
+    }
 
     // environment cleaning
     fc.stop()
