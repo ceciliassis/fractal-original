@@ -56,15 +56,15 @@ object ExceptionalMiningApp extends Logging {
       ids
     }
 
-    //  [ENERGETICS] Calculation functions
-    //    [onpaper] sum(K) or sum(V)
+//  [ENERGETICS] Calculation functions
+//  [onpaper] sum(K) or sum(V)
     val sumK: IntArrayList => Double = vs => {
       var vAttTot = 0.0
       vs.toIntArray.foreach(v => gVerts(v).getProperty.toIntArray.foreach(vAttTot += _))
       vAttTot
     }
 
-    //    [onpaper] sum(L,K) or sum(L,V)
+//  [onpaper] sum(L,K) or sum(L,V)
     val sumLK: (IntArrayList, IntArrayList) => Double = (ls, vs) => {
       var attsTot = 0.0
       vs.toIntArray.foreach {
@@ -76,6 +76,7 @@ object ExceptionalMiningApp extends Logging {
     val graphIds: IntArrayList = vIds
     val graphAttsTot: Double = sumK(graphIds)
 
+//  [onpaper] gain(L,K)
     val gain: (IntArrayList, IntArrayList, Double) => Double = (kIds, atts, kAttsTot) => {
       (sumLK(atts, kIds) / kAttsTot) - (sumLK(atts, graphIds) / graphAttsTot)
     }
@@ -104,7 +105,7 @@ object ExceptionalMiningApp extends Logging {
       List(posAtts, negAtts)
     }
 
-    //    [onpaper] A(S, K)
+//  [onpaper] A(S, K)
     val aMeasure: (VertexInducedSubgraph, IntArrayList, IntArrayList) => Double = (vis, posAtts, negAtts) => {
       //    Calc gain
       val kIds = new IntArrayList
@@ -165,8 +166,7 @@ object ExceptionalMiningApp extends Logging {
         }
     }
 
-
-    subgraphs = subgraphs.filter(rdd => !rdd.isEmpty())
+//    subgraphs = subgraphs.filter(rdd => !rdd.isEmpty())
 
     val stopTime = System.currentTimeMillis
     val elapsedTime = stopTime - startTime
