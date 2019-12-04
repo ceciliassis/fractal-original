@@ -80,16 +80,6 @@ object ExceptionalMiningApp extends Logging {
       (sumLK(atts, kIds) / kAttsTot) - (sumLK(atts, graphIds) / graphAttsTot)
     }
 
-    val valid: (IntArrayList, IntArrayList, IntArrayList, IntArrayList) => Boolean = (kIds, kProps, posAtts, negAtts) => {
-      if (gain(kIds, posAtts, kProps.getLast) < 0.0) {
-        false
-      } else if (gain(kIds, negAtts, kProps.getLast) > 0.0) {
-        false
-      } else {
-        true
-      }
-    }
-
     val props: VertexInducedSubgraph => List[IntArrayList] = vis => {
       val props: IntArrayList = vis.vertex(0).getProperty.asInstanceOf[IntArrayList]
 
@@ -126,30 +116,19 @@ object ExceptionalMiningApp extends Logging {
       gain(kIds, posAtts, kAttsTot) - gain(kIds, negAtts, kAttsTot)
     }
 
+//  [onpaper] WRAcc(S,K)
     val wracc = (vis: VertexInducedSubgraph, cvis: Computation[VertexInducedSubgraph]) => {
+//    [onpaper] |K| ≥ σ
       if (vis.getNumVertices > SIGMA) {
         val atts = props(vis)
         val posAtts = atts(0)
         val negAtts = atts(1)
-
-        var i = 0
-        val kIds = new IntArrayList
-        var v = vis.vertex(0)
-        kIds.add(v.getVertexLabel)
-
-        while (valid(kIds, v.getProperty, posAtts, negAtts) && i < vis.getNumVertices) {
-          kIds.clear()
-          i += 1
-
-          kIds.add(v.getVertexLabel)
-          v = vis.vertex(i)
-        }
-
-        aMeasure(vis, posAtts, negAtts) * (vis.getNumVertices / gVertsLen) > DELTA
+        val wraccRes = aMeasure(vis, posAtts, negAtts) * (vis.getNumVertices / gVertsLen)
+//      [onpaper] WRAcc(S,K) ≥ δ
+        wraccRes > DELTA
       } else {
         false
       }
-
     }
 
     val getFiles = (dirPath: String) => {
