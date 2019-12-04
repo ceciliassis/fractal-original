@@ -56,15 +56,15 @@ object ExceptionalMiningApp extends Logging {
       ids
     }
 
-//  [ENERGETICS] Calculation functions
-//  [onpaper] sum(K) or sum(V)
+    //  [ENERGETICS] Calculation functions
+    //  [onpaper] sum(K) or sum(V)
     val sumK: IntArrayList => Double = vs => {
       var vAttTot = 0.0
       vs.toIntArray.foreach(v => gVerts(v).getProperty.toIntArray.foreach(vAttTot += _))
       vAttTot
     }
 
-//  [onpaper] sum(L,K) or sum(L,V)
+    //  [onpaper] sum(L,K) or sum(L,V)
     val sumLK: (IntArrayList, IntArrayList) => Double = (ls, vs) => {
       var attsTot = 0.0
       vs.toIntArray.foreach {
@@ -76,7 +76,7 @@ object ExceptionalMiningApp extends Logging {
     val graphIds: IntArrayList = vIds
     val graphAttsTot: Double = sumK(graphIds)
 
-//  [onpaper] gain(L,K)
+    //  [onpaper] gain(L,K)
     val gain: (IntArrayList, IntArrayList, Double) => Double = (kIds, atts, kAttsTot) => {
       (sumLK(atts, kIds) / kAttsTot) - (sumLK(atts, graphIds) / graphAttsTot)
     }
@@ -93,19 +93,35 @@ object ExceptionalMiningApp extends Logging {
       var startIdx = 1
       var endIdx = posAttsLen
       for (i <- startIdx to endIdx) {
-        posAtts.add(props.get(i))
+        try {
+          posAtts.add(props.get(i))
+        } catch {
+          case x: ArrayIndexOutOfBoundsException => {
+            val path = vis.getConfig.getMainGraph.asInstanceOf[ExceptionalMining].getName
+            println(s"${path} : posAtts (${startIdx}; ${endIdx}) : ArrayIndexOutOfBoundsException")
+            x.printStackTrace()
+          }
+        }
       }
 
       startIdx = endIdx + 2
       endIdx = startIdx + negAttsLen - 1
       for (i <- startIdx to endIdx) {
-        negAtts.add(props.get(i))
+        try {
+          negAtts.add(props.get(i))
+        } catch {
+          case x: ArrayIndexOutOfBoundsException => {
+            val path = vis.getConfig.getMainGraph.asInstanceOf[ExceptionalMining].getName
+            println(s"${path} : negAtts (${startIdx}; ${endIdx}) : ArrayIndexOutOfBoundsException")
+            x.printStackTrace()
+          }
+        }
       }
 
       List(posAtts, negAtts)
     }
 
-//  [onpaper] A(S, K)
+    //  [onpaper] A(S, K)
     val aMeasure: (VertexInducedSubgraph, IntArrayList, IntArrayList) => Double = (vis, posAtts, negAtts) => {
       //    Calc gain
       val kIds = new IntArrayList
@@ -117,15 +133,15 @@ object ExceptionalMiningApp extends Logging {
       gain(kIds, posAtts, kAttsTot) - gain(kIds, negAtts, kAttsTot)
     }
 
-//  [onpaper] WRAcc(S,K)
+    //  [onpaper] WRAcc(S,K)
     val wracc = (vis: VertexInducedSubgraph, cvis: Computation[VertexInducedSubgraph]) => {
-//    [onpaper] |K| ≥ σ
+      //    [onpaper] |K| ≥ σ
       if (vis.getNumVertices > SIGMA) {
         val atts = props(vis)
         val posAtts = atts(0)
         val negAtts = atts(1)
         val wraccRes = aMeasure(vis, posAtts, negAtts) * (vis.getNumVertices / gVertsLen)
-//      [onpaper] WRAcc(S,K) ≥ δ
+        //      [onpaper] WRAcc(S,K) ≥ δ
         wraccRes > DELTA
       } else {
         false
@@ -166,15 +182,15 @@ object ExceptionalMiningApp extends Logging {
         }
     }
 
-//    subgraphs = subgraphs.filter(rdd => !rdd.isEmpty())
+    //    subgraphs = subgraphs.filter(rdd => !rdd.isEmpty())
 
     val stopTime = System.currentTimeMillis
     val elapsedTime = stopTime - startTime
-    println(s"Elapsed time(s): ${elapsedTime/1000.0}")
-//
-//    for (s <- subgraphs) {
-//      s.coalesce(1).saveAsTextFile(s"data/rdds/${s.name}")
-//    }
+    println(s"Elapsed time(s): ${elapsedTime / 1000.0}")
+    //
+    //    for (s <- subgraphs) {
+    //      s.coalesce(1).saveAsTextFile(s"data/rdds/${s.name}")
+    //    }
 
     // ENV CLEANING
     fc.stop()
