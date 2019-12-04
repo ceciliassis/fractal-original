@@ -152,15 +152,11 @@ object ExceptionalMiningApp extends Logging {
 
     }
 
-
     val getFiles = (dirPath: String) => {
       new File(dirPath).listFiles().filter(_.getName.endsWith(".graph"))
     }
 
-
     //  RUN
-    //    TODO: read graps folder
-
     val startTime = System.currentTimeMillis
 
     val dirPath = "data/exceptionalMining-v1/candidates"
@@ -196,6 +192,10 @@ object ExceptionalMiningApp extends Logging {
     val stopTime = System.currentTimeMillis
     val elapsedTime = stopTime - startTime
     println(s"Elapsed time(s): ${elapsedTime/1000.0}")
+//
+//    for (s <- subgraphs) {
+//      s.coalesce(1).saveAsTextFile(s"data/rdds/${s.name}")
+//    }
 
     // ENV CLEANING
     fc.stop()
