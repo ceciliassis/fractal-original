@@ -196,7 +196,7 @@ Next, we re-compile the project with ```./gradlew assemble``` and run the applic
 the dataset ```data/citeseer.graph```:
 
 ```
-app_class=br.ufmg.cs.systems.fractal.apps.MyMotifsApp ./bin/fractal-custom-app.sh data/citeseer.graph
+app_class=br.ufmg.cs.systems.fractal.apps.ExceptionalMiningApp ./bin/fractal-custom-app.sh data/exceptionalMining-v1
 ```
 
 Obs. You can use the template in ```fractal-apps/src/main/scala/br/ufmg/cs/systems/fractal/apps/MyFractalApp.scala```
