@@ -23,7 +23,8 @@ object ExceptionalMiningApp extends Logging {
   def main(args: Array[String]): Unit = {
     // environment setup
     val numPartitions: Int = 8
-    val master = s"local[${numPartitions}]"
+    val master = s"spark://compute1:7077"
+//    val conf = new SparkConf().setAppName("ExceptionalMiningApp")
     val conf = new SparkConf().setMaster(master).setAppName("ExceptionalMiningApp")
     val sc = new SparkContext(conf)
     val fc = new FractalContext(sc)
