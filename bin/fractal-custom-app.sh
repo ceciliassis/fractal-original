@@ -35,13 +35,9 @@ comm=${comm:-scratch}
 total_cores=$((num_workers * worker_cores))
 deploy_mode=${deploy_mode:-client}
 
-cmd="$SPARK_HOME/bin/spark-submit --master spark://compute1:7077 --class $app_class \\
+cmd="$SPARK_HOME/bin/spark-submit --master $spark_master --class $app_class \\
 	--jars $FRACTAL_HOME/fractal-core/build/libs/fractal-core-SPARK-2.2.0.jar \\
 	$FRACTAL_HOME/fractal-apps/build/libs/fractal-apps-SPARK-2.2.0.jar $@"
-
-#cmd="$SPARK_HOME/bin/spark-submit --master $spark_master --class $app_class \\
-#	--jars $FRACTAL_HOME/fractal-core/build/libs/fractal-core-SPARK-2.2.0.jar \\
-#	$FRACTAL_HOME/fractal-apps/build/libs/fractal-apps-SPARK-2.2.0.jar $@"
 
 echo $cmd
 bash -c "$cmd"

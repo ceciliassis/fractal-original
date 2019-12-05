@@ -22,9 +22,9 @@ object ExceptionalMiningApp extends Logging {
 
   def main(args: Array[String]): Unit = {
     // environment setup
-    val numPartitions: Int = 2
-//    val master = s"local[${numPartitions}]"
-    val conf = new SparkConf().setAppName("ExceptionalMiningApp")
+    val numPartitions: Int = 8
+    val master = s"local[${numPartitions}]"
+    val conf = new SparkConf().setMaster(master).setAppName("ExceptionalMiningApp")
     val sc = new SparkContext(conf)
     val fc = new FractalContext(sc)
 
@@ -33,8 +33,9 @@ object ExceptionalMiningApp extends Logging {
     val DELTA = 0.05
 
     //  [ENERGETICS] Graph init
+    val fractalDatasets = "/user/ceciliassis/fractal/"
     val exceptionalGraphClass = "br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining"
-    val graphPath = "data/exceptionalMining-v1/main.graph"
+    val graphPath = s"${fractalDatasets}data/exceptionalMining-v1/main.graph"
 
     val loadExceptionalMainGraph: ExceptionalMining = {
       val graph = fc.textFile(graphPath).vfractoid
@@ -155,7 +156,7 @@ object ExceptionalMiningApp extends Logging {
     //  RUN
     val startTime = System.currentTimeMillis
 
-    val dirPath = "data/exceptionalMining-v1/candidates"
+    val dirPath = s"${fractalDatasets}data/exceptionalMining-v1/candidates"
     val files = getFiles(dirPath)
 
     var subgraphs = new ListBuffer[RDD[ResultSubgraph[_]]]
