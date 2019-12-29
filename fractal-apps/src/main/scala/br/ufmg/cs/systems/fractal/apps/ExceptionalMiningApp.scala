@@ -22,10 +22,8 @@ object ExceptionalMiningApp extends Logging {
 
   def main(args: Array[String]): Unit = {
     // environment setup
-    val numPartitions: Int = 8
-//    val master = s"spark://compute1:7077"
-    val conf = new SparkConf().setAppName("ExceptionalMiningApp")
-//    val conf = new SparkConf().setMaster(master).setAppName("ExceptionalMiningApp")
+    val conf = new SparkConf().setMaster(s"local[*]").setAppName("ExceptionalMiningApp")
+//    val conf = new SparkConf().setAppName("ExceptionalMiningApp")
     val sc = new SparkContext(conf)
     val fc = new FractalContext(sc)
 
@@ -34,7 +32,8 @@ object ExceptionalMiningApp extends Logging {
     val DELTA = 0.05
 
     //  [ENERGETICS] Graph init
-    val fractalDatasets = "/user/ceciliassis/fractal/"
+    val fractalDatasets = ""
+//    val fractalDatasets = "/user/ceciliassis/fractal/"
     val exceptionalGraphClass = "br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining"
     val graphPath = s"${fractalDatasets}data/exceptionalMining-v1/main.graph"
 
