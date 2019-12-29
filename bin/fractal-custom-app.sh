@@ -25,9 +25,9 @@ for argname in $required; do
 	fi
 done
 
-spark_master=${spark_master:-local[1]}
+spark_master=${spark_master:-spark://compute1:7077}
 master_memory=${master_memory:-2g}
-num_workers=${num_workers:-1}
+num_workers=${num_workers:-4}
 worker_cores=${worker_cores:-1}
 worker_memory=${worker_memory:-2g}
 inputformat=${inputformat:-al}
@@ -35,9 +35,14 @@ comm=${comm:-scratch}
 total_cores=$((num_workers * worker_cores))
 deploy_mode=${deploy_mode:-client}
 
-cmd="$SPARK_HOME/bin/spark-submit --master spark://compute1:7077 --class $app_class \\
-	--jars hdfs://compute1:9000/user/ceciliassis/fractal-core-SPARK-2.2.0.jar \\
-	hdfs://compute1:9000/user/ceciliassis/fractal-apps-SPARK-2.2.0.jar $@"
+cmd="$SPARK_HOME/bin/spark-submit --master $spark_master --deploy-mode $deploy_mode \\
+        --driver-memory $master_memory \\
+        --num-executors $num_workers \\
+        --executor-cores $worker_cores \\
+        --executor-memory $worker_memory \\
+        --class $app_class \\
+        --jars hdfs://compute1:9000/user/ceciliassis/fractal-core-SPARK-2.2.0.jar \\
+        hdfs://compute1:9000/user/ceciliassis/fractal-apps-SPARK-2.2.0.jar $@"
 
 echo $cmd
 bash -c "$cmd"
