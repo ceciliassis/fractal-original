@@ -32,13 +32,11 @@ object ExceptionalMiningApp extends Logging {
     val DELTA = 0.05
 
     //  [ENERGETICS] Graph init
-//    val fractalDatasets = ""
-    val fractalDatasets = "/user/ceciliassis/fractal/"
+    val fractalDatasets = "/user/ceciliassis/fractal/data/exceptionalMining-v1"
     val exceptionalGraphClass = "br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining"
-    val graphPath = s"${fractalDatasets}data/exceptionalMining-v1/main.graph"
 
     val loadExceptionalMainGraph: ExceptionalMining = {
-      val graph = fc.textFile(graphPath).vfractoid
+      val graph = fc.textFile(s"${fractalDatasets}/maingraph/main.graph").vfractoid
         .set("input_graph_class", exceptionalGraphClass)
         .expand(1)
       graph.compute()
@@ -154,16 +152,15 @@ object ExceptionalMiningApp extends Logging {
     }
 
     //  RUN
-    val startTime = System.currentTimeMillis
-
-    val dirPath = s"${fractalDatasets}data/exceptionalMining-v1/candidates"
-    val files = getFiles(dirPath)
+    val files = getFiles(s"${fractalDatasets}/candidates")
 
     var subgraphs = new ListBuffer[RDD[ResultSubgraph[_]]]
 
     var fileLines = 0
     var fGraph: FractalGraph = null
     var filePath = ""
+
+    val startTime = System.currentTimeMillis
 
     val expanded: (Int, FractalGraph) => Fractoid[VertexInducedSubgraph] = (k, fGraph) => {
       var frac = fGraph.vfractoid.set("input_graph_class", exceptionalGraphClass)
