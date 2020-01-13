@@ -14,13 +14,6 @@ else
 	echo "SPARK_HOME is set to $SPARK_HOME"
 fi
 
-if [ -z $SPARK_HOME ]; then
-	echo "SPARK_HOME is unset"
-	exit 1
-else
-	echo "SPARK_HOME is set to $SPARK_HOME"
-fi
-
 export SPARK_SUBMIT_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
 
 bash -c "./gradlew assemble"
