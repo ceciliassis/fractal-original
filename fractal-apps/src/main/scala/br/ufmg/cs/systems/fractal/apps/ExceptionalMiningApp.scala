@@ -35,15 +35,13 @@ object ExceptionalMiningApp extends Logging {
     val fractalDatasets = "/user/ceciliassis/fractal/data/exceptionalMining-v1"
     val exceptionalGraphClass = "br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining"
 
-    val loadExceptionalMainGraph: ExceptionalMining = {
+    val graph: ExceptionalMining = {
       val graph = fc.textFile(s"${fractalDatasets}/maingraph/main.graph").vfractoid
         .set("input_graph_class", exceptionalGraphClass)
         .expand(1)
-      graph.compute()
       graph.config.getMainGraph.asInstanceOf[ExceptionalMining]
     }
 
-    val graph: ExceptionalMining = loadExceptionalMainGraph
     val gVertsLen = graph.getNumberVertices()
     val gVerts = graph.getVertices
 
