@@ -29,7 +29,8 @@ object ExceptionalMiningApp extends Logging {
     val sc = new SparkContext(conf)
     val fc = new FractalContext(sc)
 
-    val hdfsFileSystem = FileSystem.get(new Configuration())
+    val hdfsFileSystem = FileSystem.get(sc.hadoopConfiguration)
+
     val hdfsCore = "hdfs://compute1:9000"
 
     val userFolder = "user/ceciliassis"
@@ -44,7 +45,7 @@ object ExceptionalMiningApp extends Logging {
 
     val graph: ExceptionalMining = {
       val graphPath = s"${fractalDatasets}/maingraph/main.graph"
-      val graph = fc.textFile(graphPath).vfractoid.set("input_graph_class", graphClass).expand(1)
+      val graph = fc.textFile(graphPath, graphClass).vfractoid
       graph.subgraphs
       graph.config.getMainGraph.asInstanceOf[ExceptionalMining]
     }
@@ -52,137 +53,137 @@ object ExceptionalMiningApp extends Logging {
     val gVertsLen = graph.getNumberVertices()
     val gVerts = graph.getVertices
 
-//    val vIds: IntArrayList = {
-//      val ids = new IntArrayList()
-//      for (i <- 0 to gVertsLen - 1) {
-//        ids.add(gVerts(i).getVertexId)
-//      }
-//      ids
-//    }
-//
-//    //  [ENERGETICS] Calculation functions
-//    //  [onpaper] sum(K) or sum(V)
-//    val sumK: IntArrayList => Double = vs => {
-//      var vAttTot = 0.0
-//      vs.toIntArray.foreach(v => gVerts(v).getProperty.toIntArray.foreach(vAttTot += _))
-//      vAttTot
-//    }
-//
-//    //  [onpaper] sum(L,K) or sum(L,V)
-//    val sumLK: (IntArrayList, IntArrayList) => Double = (ls, vs) => {
-//      var attsTot = 0.0
-//      vs.toIntArray.foreach {
-//        v => ls.toIntArray.foreach(l => attsTot += gVerts(v).getProperty.get(l))
-//      }
-//      attsTot
-//    }
-//
-//    val graphIds: IntArrayList = vIds
-//    val graphAttsTot: Double = sumK(graphIds)
-//
-//    //  [onpaper] gain(L,K)
-//    val gain: (IntArrayList, IntArrayList, Double) => Double = (kIds, atts, kAttsTot) => {
-//      (sumLK(atts, kIds) / kAttsTot) - (sumLK(atts, graphIds) / graphAttsTot)
-//    }
-//
-//    val props: VertexInducedSubgraph => List[IntArrayList] = vis => {
-//      val props: IntArrayList = vis.vertex(0).getProperty.asInstanceOf[IntArrayList]
-//
-//      val posAttsLen: Int = props.get(0)
-//      val negAttsLen: Int = props.get(posAttsLen + 1)
-//
-//      val posAtts = new IntArrayList
-//      val negAtts = new IntArrayList
-//
-//      var startIdx = 1
-//      var endIdx = posAttsLen
-//      for (i <- startIdx to endIdx) {
-//        try {
-//          posAtts.add(props.get(i))
-//        } catch {
-//          case x: ArrayIndexOutOfBoundsException => {
-//            val path = vis.getConfig.getMainGraph.asInstanceOf[ExceptionalMining].getName
-//            println(s"${path} : posAtts (${startIdx}; ${endIdx}) : ArrayIndexOutOfBoundsException")
-//            x.printStackTrace()
-//          }
-//        }
-//      }
-//
-//      startIdx = endIdx + 2
-//      endIdx = startIdx + negAttsLen - 1
-//      for (i <- startIdx to endIdx) {
-//        try {
-//          negAtts.add(props.get(i))
-//        } catch {
-//          case x: ArrayIndexOutOfBoundsException => {
-//            val path = vis.getConfig.getMainGraph.asInstanceOf[ExceptionalMining].getName
-//            println(s"${path} : negAtts (${startIdx}; ${endIdx}) : ArrayIndexOutOfBoundsException")
-//            x.printStackTrace()
-//          }
-//        }
-//      }
-//
-//      List(posAtts, negAtts)
-//    }
-//
-//    //  [onpaper] A(S, K)
-//    val aMeasure: (VertexInducedSubgraph, IntArrayList, IntArrayList) => Double = (vis, posAtts, negAtts) => {
-//      //    Calc gain
-//      val kIds = new IntArrayList
-//      for (v <- vis.getVertices.toIntArray) {
-//        kIds.add(vis.vertex(v).getVertexLabel)
-//      }
-//
-//      val kAttsTot: Double = sumK(kIds)
-//      gain(kIds, posAtts, kAttsTot) - gain(kIds, negAtts, kAttsTot)
-//    }
-//
-//    //  [onpaper] WRAcc(S,K)
-//    val wracc = (vis: VertexInducedSubgraph, cvis: Computation[VertexInducedSubgraph]) => {
-//      //    [onpaper] |K| ≥ σ
-//      if (vis.getNumVertices > SIGMA) {
-//        val atts = props(vis)
-//        val posAtts = atts(0)
-//        val negAtts = atts(1)
-//        val wraccRes = aMeasure(vis, posAtts, negAtts) * (vis.getNumVertices / gVertsLen)
-//        //      [onpaper] WRAcc(S,K) ≥ δ
-//        wraccRes > DELTA
-//      } else {
-//        false
-//      }
-//    }
+    //    val vIds: IntArrayList = {
+    //      val ids = new IntArrayList()
+    //      for (i <- 0 to gVertsLen - 1) {
+    //        ids.add(gVerts(i).getVertexId)
+    //      }
+    //      ids
+    //    }
+    //
+    //    //  [ENERGETICS] Calculation functions
+    //    //  [onpaper] sum(K) or sum(V)
+    //    val sumK: IntArrayList => Double = vs => {
+    //      var vAttTot = 0.0
+    //      vs.toIntArray.foreach(v => gVerts(v).getProperty.toIntArray.foreach(vAttTot += _))
+    //      vAttTot
+    //    }
+    //
+    //    //  [onpaper] sum(L,K) or sum(L,V)
+    //    val sumLK: (IntArrayList, IntArrayList) => Double = (ls, vs) => {
+    //      var attsTot = 0.0
+    //      vs.toIntArray.foreach {
+    //        v => ls.toIntArray.foreach(l => attsTot += gVerts(v).getProperty.get(l))
+    //      }
+    //      attsTot
+    //    }
+    //
+    //    val graphIds: IntArrayList = vIds
+    //    val graphAttsTot: Double = sumK(graphIds)
+    //
+    //    //  [onpaper] gain(L,K)
+    //    val gain: (IntArrayList, IntArrayList, Double) => Double = (kIds, atts, kAttsTot) => {
+    //      (sumLK(atts, kIds) / kAttsTot) - (sumLK(atts, graphIds) / graphAttsTot)
+    //    }
+    //
+    //    val props: VertexInducedSubgraph => List[IntArrayList] = vis => {
+    //      val props: IntArrayList = vis.vertex(0).getProperty.asInstanceOf[IntArrayList]
+    //
+    //      val posAttsLen: Int = props.get(0)
+    //      val negAttsLen: Int = props.get(posAttsLen + 1)
+    //
+    //      val posAtts = new IntArrayList
+    //      val negAtts = new IntArrayList
+    //
+    //      var startIdx = 1
+    //      var endIdx = posAttsLen
+    //      for (i <- startIdx to endIdx) {
+    //        try {
+    //          posAtts.add(props.get(i))
+    //        } catch {
+    //          case x: ArrayIndexOutOfBoundsException => {
+    //            val path = vis.getConfig.getMainGraph.asInstanceOf[ExceptionalMining].getName
+    //            println(s"${path} : posAtts (${startIdx}; ${endIdx}) : ArrayIndexOutOfBoundsException")
+    //            x.printStackTrace()
+    //          }
+    //        }
+    //      }
+    //
+    //      startIdx = endIdx + 2
+    //      endIdx = startIdx + negAttsLen - 1
+    //      for (i <- startIdx to endIdx) {
+    //        try {
+    //          negAtts.add(props.get(i))
+    //        } catch {
+    //          case x: ArrayIndexOutOfBoundsException => {
+    //            val path = vis.getConfig.getMainGraph.asInstanceOf[ExceptionalMining].getName
+    //            println(s"${path} : negAtts (${startIdx}; ${endIdx}) : ArrayIndexOutOfBoundsException")
+    //            x.printStackTrace()
+    //          }
+    //        }
+    //      }
+    //
+    //      List(posAtts, negAtts)
+    //    }
+    //
+    //    //  [onpaper] A(S, K)
+    //    val aMeasure: (VertexInducedSubgraph, IntArrayList, IntArrayList) => Double = (vis, posAtts, negAtts) => {
+    //      //    Calc gain
+    //      val kIds = new IntArrayList
+    //      for (v <- vis.getVertices.toIntArray) {
+    //        kIds.add(vis.vertex(v).getVertexLabel)
+    //      }
+    //
+    //      val kAttsTot: Double = sumK(kIds)
+    //      gain(kIds, posAtts, kAttsTot) - gain(kIds, negAtts, kAttsTot)
+    //    }
+    //
+    //    //  [onpaper] WRAcc(S,K)
+    //    val wracc = (vis: VertexInducedSubgraph, cvis: Computation[VertexInducedSubgraph]) => {
+    //      //    [onpaper] |K| ≥ σ
+    //      if (vis.getNumVertices > SIGMA) {
+    //        val atts = props(vis)
+    //        val posAtts = atts(0)
+    //        val negAtts = atts(1)
+    //        val wraccRes = aMeasure(vis, posAtts, negAtts) * (vis.getNumVertices / gVertsLen)
+    //        //      [onpaper] WRAcc(S,K) ≥ δ
+    //        wraccRes > DELTA
+    //      } else {
+    //        false
+    //      }
+    //    }
 
     //  RUN
-//    val candidatesFiles = hdfsFileSystem.globStatus(new Path(s"${fractalDatasets}/*.graph"))
-//    var subgraphs = new ListBuffer[RDD[ResultSubgraph[_]]]
-//
-//    val startTime = System.currentTimeMillis
-//
-//    val expanded: (Int, FractalGraph) => Fractoid[VertexInducedSubgraph] = (k, fGraph) => {
-//      var frac = fGraph.vfractoid.set("input_graph_class", graphClass)
-//      for (_ <- 1 to k) {
-//        frac = frac.expand(1)
-//      }
-//      frac
-//    }
-//
-//    var filePath = ""
-//    var fileLines = 0
-//    var fileGraph: FractalGraph = null
-//
-//    candidatesFiles.foreach {
-//      file =>
-//        filePath = file.getPath.toString
-//        fileGraph = fc.textFile(filePath)
-//        fileLines = Source.fromURL(file.getPath.toString).getLines.length
-//        for (k <- 1 to fileLines) {
-//          subgraphs += expanded(k, fileGraph).filter(wracc).subgraphs
-//        }
-//    }
-//
-//    val stopTime = System.currentTimeMillis
-//    val elapsedTime = stopTime - startTime
-//    println(s"Elapsed time(s): ${elapsedTime / 1000.0}")
+    //    val candidatesFiles = hdfsFileSystem.globStatus(new Path(s"${fractalDatasets}/*.graph"))
+    //    var subgraphs = new ListBuffer[RDD[ResultSubgraph[_]]]
+    //
+    //    val startTime = System.currentTimeMillis
+    //
+    //    val expanded: (Int, FractalGraph) => Fractoid[VertexInducedSubgraph] = (k, fGraph) => {
+    //      var frac = fGraph.vfractoid.set("input_graph_class", graphClass)
+    //      for (_ <- 1 to k) {
+    //        frac = frac.expand(1)
+    //      }
+    //      frac
+    //    }
+    //
+    //    var filePath = ""
+    //    var fileLines = 0
+    //    var fileGraph: FractalGraph = null
+    //
+    //    candidatesFiles.foreach {
+    //      file =>
+    //        filePath = file.getPath.toString
+    //        fileGraph = fc.textFile(filePath)
+    //        fileLines = Source.fromURL(file.getPath.toString).getLines.length
+    //        for (k <- 1 to fileLines) {
+    //          subgraphs += expanded(k, fileGraph).filter(wracc).subgraphs
+    //        }
+    //    }
+    //
+    //    val stopTime = System.currentTimeMillis
+    //    val elapsedTime = stopTime - startTime
+    //    println(s"Elapsed time(s): ${elapsedTime / 1000.0}")
 
     // ENV CLEANING
     fc.stop()
