@@ -43,15 +43,15 @@ object ExceptionalMiningApp extends Logging {
     val fractalDatasets = s"${hdfsCore}/${userFolder}/fractal/data/exceptionalMining-v1/candidates"
     val graphClass = "br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining"
 
-    val graph: ExceptionalMining = {
-      val graphPath = s"${fractalDatasets}/maingraph/main.graph"
-      val graph = fc.textFile(graphPath, graphClass).vfractoid.expand(1)
-      graph.compute
-      graph.config.getMainGraph.asInstanceOf[ExceptionalMining]
-    }
-
-    val gVertsLen = graph.getNumberVertices
-    val gVerts = graph.getVertices
+    //    val graph: ExceptionalMining = {
+    //      val graphPath = s"${fractalDatasets}/maingraph/main.graph"
+    //      val graph = fc.textFile(graphPath, graphClass).vfractoid.expand(1)
+    //      graph.compute
+    //      graph.config.getMainGraph.asInstanceOf[ExceptionalMining]
+    //    }
+    //
+    //    val gVertsLen = graph.getNumberVertices
+    //    val gVerts = graph.getVertices
 
     //    val vIds: IntArrayList = {
     //      val ids = new IntArrayList()
@@ -154,32 +154,33 @@ object ExceptionalMiningApp extends Logging {
     //    }
 
     //  RUN
-    //    val candidatesFiles = hdfsFileSystem.globStatus(new Path(s"${fractalDatasets}/*.graph"))
-    //    var subgraphs = new ListBuffer[RDD[ResultSubgraph[_]]]
+    val candidatesFiles = hdfsFileSystem.globStatus(new Path(s"${fractalDatasets}/*.graph"))
+    var subgraphs = new ListBuffer[RDD[ResultSubgraph[_]]]
+
+    val startTime = System.currentTimeMillis
+
+    val expanded: (Int, FractalGraph) => Fractoid[VertexInducedSubgraph] = (k, fGraph) => {
+      var frac = fGraph.vfractoid.set("input_graph_class", graphClass)
+      for (_ <- 1 to k) {
+        frac = frac.expand(1)
+      }
+      frac
+    }
+
+    var filePath = ""
+    var fileLines = 0
+    var fileGraph: FractalGraph = null
     //
-    //    val startTime = System.currentTimeMillis
-    //
-    //    val expanded: (Int, FractalGraph) => Fractoid[VertexInducedSubgraph] = (k, fGraph) => {
-    //      var frac = fGraph.vfractoid.set("input_graph_class", graphClass)
-    //      for (_ <- 1 to k) {
-    //        frac = frac.expand(1)
-    //      }
-    //      frac
-    //    }
-    //
-    //    var filePath = ""
-    //    var fileLines = 0
-    //    var fileGraph: FractalGraph = null
-    //
-    //    candidatesFiles.foreach {
-    //      file =>
-    //        filePath = file.getPath.toString
-    //        fileGraph = fc.textFile(filePath)
-    //        fileLines = Source.fromURL(file.getPath.toString).getLines.length
-    //        for (k <- 1 to fileLines) {
-    //          subgraphs += expanded(k, fileGraph).filter(wracc).subgraphs
-    //        }
-    //    }
+    candidatesFiles.foreach {
+      file =>
+        filePath = file.getPath.toString
+        fileGraph = fc.textFile(filePath)
+        fileLines = Source.fromURL(file.getPath.toString).getLines.length
+        for (k <- 1 to fileLines) {
+          subgraphs += expanded(k, fileGraph).subgraphs
+          //              subgraphs += expanded(k, fileGraph).filter(wracc).subgraphs
+        }
+    }
     //
     //    val stopTime = System.currentTimeMillis
     //    val elapsedTime = stopTime - startTime
