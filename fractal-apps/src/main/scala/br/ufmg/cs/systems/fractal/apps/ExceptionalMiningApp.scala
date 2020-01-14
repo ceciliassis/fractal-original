@@ -175,7 +175,7 @@ object ExceptionalMiningApp extends Logging {
       file =>
         filePath = file.getPath.toString
         fileGraph = fc.textFile(filePath)
-        fileLines = Source.fromURL(file.getPath.toString).getLines.length
+        fileLines = Source.fromFile(file.getPath.toString).getLines.length
         for (k <- 1 to fileLines) {
           subgraphs += expanded(k, fileGraph).subgraphs
           //              subgraphs += expanded(k, fileGraph).filter(wracc).subgraphs
