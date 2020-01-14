@@ -15,7 +15,7 @@ else
 fi
 
 echo "Setting SPARK_SUBMIT_OPTS to -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
-export SPARK_SUBMIT_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005
+bash -c "export SPARK_SUBMIT_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
 echo "Running gradlew"
 bash -c "./gradlew assemble"
