@@ -167,15 +167,15 @@ object ExceptionalMiningApp extends Logging {
       frac
     }
 
-    var filePath = ""
+    var filePath: Path = null
     var fileLines = 0
     var fileGraph: FractalGraph = null
     //
     candidatesFiles.foreach {
       file =>
-        filePath = file.getPath.toString
-        fileGraph = fc.textFile(filePath)
-        fileLines = Source.fromFile(file.getPath.toString).getLines.length
+        filePath = file.getPath
+        fileGraph = fc.textFile(filePath.toString)
+        fileLines = Source.fromInputStream(hdfsFileSystem.open(filePath)).getLines.length
         for (k <- 1 to fileLines) {
           subgraphs += expanded(k, fileGraph).subgraphs
           //              subgraphs += expanded(k, fileGraph).filter(wracc).subgraphs
