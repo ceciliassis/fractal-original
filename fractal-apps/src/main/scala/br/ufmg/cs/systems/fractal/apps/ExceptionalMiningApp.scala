@@ -28,7 +28,7 @@ object ExceptionalMiningApp extends Logging {
     val DELTA = 0.05
 
     //  [ENERGETICS] Graph init
-    val fractalDatasets = "/user/ceciliassis/fractal/data/exceptionalMining-v1"
+    val fractalDatasets = "hdfs://compute1:9000/user/ceciliassis/fractal/data/exceptionalMining-v1"
     val graphClass = "br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining"
 
 
