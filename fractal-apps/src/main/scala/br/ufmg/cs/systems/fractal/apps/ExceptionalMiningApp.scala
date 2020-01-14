@@ -8,6 +8,9 @@ import br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining
 import br.ufmg.cs.systems.fractal.subgraph.{ResultSubgraph, VertexInducedSubgraph}
 import br.ufmg.cs.systems.fractal.util.Logging
 import br.ufmg.cs.systems.fractal.util.collection.IntArrayList
+import org.apache.commons.httpclient.URI
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -22,6 +25,8 @@ object ExceptionalMiningApp extends Logging {
     val conf = new SparkConf().setAppName("ExceptionalMiningApp")
     val sc = new SparkContext(conf)
     val fc = new FractalContext(sc)
+    val hdfsFileSystem = FileSystem.get(new Configuration())
+
 
     //  ENERGETICS
     val SIGMA = 1
@@ -32,30 +37,6 @@ object ExceptionalMiningApp extends Logging {
     val graphClass = "br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining"
 
 
-    val getFiles: String => Array[File] = (dirPath: String) => {
-      new File(dirPath).listFiles().filter(_.getName.endsWith(".graph"))
-    }
-
-    val getFileLines: String => Int = filePath => {
-      Source.fromFile(filePath).getLines().toList.length
-    }
-
-    //  RUN
-    val files = getFiles(s"${fractalDatasets}/candidates")
-
-
-    var fileLines = 0
-    var fGraph: FractalGraph = null
-    var filePath = ""
-
-
-    files.foreach {
-      file =>
-        filePath = file.getPath
-        fGraph = fc.textFile(filePath)
-        fileLines = getFileLines(filePath)
-        print(fileLines)
-    }
 
 
     // ENV CLEANING
