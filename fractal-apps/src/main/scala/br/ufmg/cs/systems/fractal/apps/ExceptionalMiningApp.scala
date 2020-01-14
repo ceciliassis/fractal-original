@@ -39,7 +39,7 @@ object ExceptionalMiningApp extends Logging {
     val DELTA = 0.05
 
     //  [ENERGETICS] Graph init
-    val fractalDatasets = s"${hdfsCore}/${userFolder}/fractal/data/exceptionalMining-v1"
+    val fractalDatasets = s"${hdfsCore}/${userFolder}/fractal/data/exceptionalMining-v1/candidates"
     val graphClass = "br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining"
 
     val graph: ExceptionalMining = {
@@ -153,7 +153,7 @@ object ExceptionalMiningApp extends Logging {
 //    }
 
     //  RUN
-//    val candidatesFiles = hdfsFileSystem.globStatus(new Path(s"${fractalDatasets}/candidates/*.graph"))
+//    val candidatesFiles = hdfsFileSystem.globStatus(new Path(s"${fractalDatasets}/*.graph"))
 //    var subgraphs = new ListBuffer[RDD[ResultSubgraph[_]]]
 //
 //    val startTime = System.currentTimeMillis
