@@ -2,7 +2,6 @@ package br.ufmg.cs.systems.fractal.apps
 
 import java.io.File
 
-import br.ufmg.cs.systems.fractal.apps.ExceptionalMiningApp.getFileLines
 import br.ufmg.cs.systems.fractal.{FractalGraph, _}
 import br.ufmg.cs.systems.fractal.computation.Computation
 import br.ufmg.cs.systems.fractal.gmlib.exceptionalmining.ExceptionalMining
@@ -17,10 +16,6 @@ import scala.io.Source
 
 
 object ExceptionalMiningApp extends Logging {
-  def getFileLines(path: String): Int = {
-
-  }
-
   def main(args: Array[String]): Unit = {
     // environment setup
     //    val conf = new SparkConf().setMaster(s"local[*]").setAppName("ExceptionalMiningApp")
