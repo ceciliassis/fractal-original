@@ -24,6 +24,8 @@ object ExceptionalMiningApp extends Logging {
 
     val hdfsFileSystem = FileSystem.get(sc.hadoopConfiguration)
 
+    print(hdfsFileSystem.getHomeDirectory)
+
     val hdfsCore = "hdfs://compute1:9000" // NOTE: endereço hdfs
 
     val userFolder = "user/ceciliassis"
