@@ -14,7 +14,7 @@ import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 
-object BKPExceptionalMiningApp extends Logging {
+object ExceptionalMiningApp extends Logging {
   def main(args: Array[String]): Unit = {
     // environment setup
     val conf = new SparkConf().setAppName("ExceptionalMiningApp")
