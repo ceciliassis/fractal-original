@@ -18,8 +18,9 @@ object ExceptionalMiningApp extends Logging {
   def main(args: Array[String]): Unit = {
     // environment setup
 
-    val masterUrl = "spark://compute1:7077"
-    val conf = new SparkConf().setMaster(masterUrl).setAppName("ExceptionalMiningApp")
+//    val masterUrl = "local[*]"
+    //    val conf = new SparkConf().setMaster(masterUrl).setAppName("ExceptionalMiningApp")
+    val conf = new SparkConf().setAppName("ExceptionalMiningApp")
     val sc = new SparkContext(conf)
 
     val hdfsFileSystem = FileSystem.get(sc.hadoopConfiguration)
