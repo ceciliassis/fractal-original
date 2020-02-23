@@ -18,7 +18,7 @@ object ExceptionalMiningApp extends Logging {
   def main(args: Array[String]): Unit = {
     // environment setup
 
-//    val masterUrl = "local[*]"
+    //    val masterUrl = "local[*]"
     //    val conf = new SparkConf().setMaster(masterUrl).setAppName("ExceptionalMiningApp")
     val conf = new SparkConf().setAppName("ExceptionalMiningApp")
     val sc = new SparkContext(conf)
@@ -28,7 +28,7 @@ object ExceptionalMiningApp extends Logging {
     val hdfsCore = "hdfs://compute1:9000"
     val userFolder = s"${hdfsCore}/user/ceciliassis"
 
-    val fc = new FractalContext(sc, tmpDir=s"${userFolder}/tmp/fractal")
+    val fc = new FractalContext(sc, tmpDir = s"${userFolder}/tmp/fractal")
 
     //  ENERGETICS
     val SIGMA = 1
@@ -40,9 +40,10 @@ object ExceptionalMiningApp extends Logging {
     val graphPath = s"${fractalDatasets}/maingraph/main.graph"
 
     val mainGraph = fc.textFile(graphPath)
-                      .vfractoid
-                      .explore(1)
-                      .set("input_graph_class", graphClass)
+      .vfractoid
+      .explore(1)
+      .set("num_partitions", 1)
+      .set("input_graph_class", graphClass)
     val subgraphs = mainGraph.subgraphs
 
     val exceptionalMainGraph = mainGraph.config.getMainGraph.asInstanceOf[ExceptionalMining]
