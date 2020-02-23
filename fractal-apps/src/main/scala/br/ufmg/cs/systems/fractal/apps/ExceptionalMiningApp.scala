@@ -41,7 +41,7 @@ object ExceptionalMiningApp extends Logging {
 
     val mainGraph = fc.textFile(graphPath)
                       .vfractoid
-                      .expand(1)
+                      .explore(1)
                       .set("input_graph_class", graphClass)
     val subgraphs = mainGraph.subgraphs
 
