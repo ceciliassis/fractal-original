@@ -23,12 +23,13 @@ object ExceptionalMiningApp extends Logging {
     val conf = new SparkConf().setAppName("ExceptionalMiningApp")
     val sc = new SparkContext(conf)
 
-    val hdfsFileSystem = FileSystem.get(sc.hadoopConfiguration)
+//    val hdfsFileSystem = FileSystem.get(sc.hadoopConfiguration)
 
     val hdfsCore = "hdfs://compute1:9000"
     val userFolder = s"${hdfsCore}/user/ceciliassis"
+    val tmpFolder = s"${userFolder}/tmp/fractal"
 
-    val fc = new FractalContext(sc, tmpDir = s"${userFolder}/tmp/fractal")
+    val fc = new FractalContext(sc)
 
     //  ENERGETICS
     val SIGMA = 1
