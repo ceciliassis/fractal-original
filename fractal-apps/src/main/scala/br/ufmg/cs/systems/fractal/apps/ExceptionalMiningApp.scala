@@ -40,7 +40,7 @@ object ExceptionalMiningApp extends Logging {
     val graphPath = s"${fractalDatasets}/maingraph/main.graph"
 
     val mainGraph = fc.textFile(graphPath, graphClass).vfractoid.expand(1)
-    mainGraph.compute
+    mainGraph.subgraphs
 
     val exceptionalMainGraph = mainGraph.config.getMainGraph.asInstanceOf[ExceptionalMining]
 
